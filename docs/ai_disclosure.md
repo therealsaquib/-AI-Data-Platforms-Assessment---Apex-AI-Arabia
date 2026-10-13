@@ -16,4 +16,4 @@ I searched project text, including raw/staging/quarantine, for credential patter
 - `docs/data_issues.md` says lowercase `canceled` is planted; I did not find it in raw scheduling rows.
 - Schema/type DQ covers selected columns only. Latest-DQ SQL selects by timestamp, not run ID; it returned 15 rows in one audit, although the three clean runs returned 16.
 
-Do not claim personal verification of work you have not run or understood.
+
