@@ -1,0 +1,146 @@
+[
+  {
+    "claim_id": "CLM00001",
+    "patient": "PAT0055",
+    "provider": "PRV003",
+    "appointment_ref": "APT00122",
+    "claim_amount": 2340.84,
+    "claim_status": "pending",
+    "updated_at": "2026-09-15T21:33:00+00:00"
+  },
+  {
+    "claim_id": "CLM00002",
+    "patient": "PAT0128",
+    "provider": "PRV004",
+    "appointment_ref": "APT00234",
+    "claim_amount": 1147.47,
+    "claim_status": "pending",
+    "updated_at": "2026-09-14T20:52:00+00:00"
+  },
+  {
+    "claim_id": "CLM00003",
+    "patient": "PAT0054",
+    "provider": "PRV003",
+    "appointment_ref": "APT00104",
+    "claim_amount": 891.58,
+    "claim_status": "pending",
+    "updated_at": "2026-09-04T09:20:00+00:00"
+  },
+  {
+    "claim_id": "CLM00004",
+    "patient": "PAT0165",
+    "provider": "PRV009",
+    "appointment_ref": "APT00300",
+    "claim_amount": 1388.36,
+    "claim_status": "pending",
+    "updated_at": "2026-10-03T04:15:00+00:00"
+  },
+  {
+    "claim_id": "CLM00005",
+    "patient": "PAT0128",
+    "provider": "PRV019",
+    "appointment_ref": "APT00289",
+    "claim_amount": 1003.36,
+    "claim_status": "Submitted",
+    "updated_at": "2026-09-13T15:34:00+00:00"
+  },
+  {
+    "claim_id": "CLM00006",
+    "patient": "PAT0119",
+    "provider": "PRV009",
+    "appointment_ref": "APT00224",
+    "claim_amount": 4475.83,
+    "claim_status": "Submitted",
+    "updated_at": "2026-09-22T14:01:00+00:00"
+  },
+  {
+    "claim_id": "CLM00007",
+    "patient": "PAT0115",
+    "provider": "PRV016",
+    "appointment_ref": "APT00049",
+    "claim_amount": 495.21,
+    "claim_status": "Approved",
+    "updated_at": "2026-10-11T10:43:00+00:00"
+  },
+  {
+    "claim_id": "CLM00008",
+    "patient": "PAT0129",
+    "provider": "PRV001",
+    "appointment_ref": "APT00200",
+    "claim_amount": 248.94,
+    "claim_status": "pending",
+    "updated_at": "2026-09-02T14:31:00+00:00"
+  },
+  {
+    "claim_id": "CLM00009",
+    "patient": "PAT0048",
+    "provider": "PRV005",
+    "appointment_ref": "APT00148",
+    "claim_amount": 1744.58,
+    "claim_status": "Denied",
+    "updated_at": "2026-09-13T23:27:00+00:00"
+  },
+  {
+    "claim_id": "CLM00010",
+    "patient": "PAT0014",
+    "provider": "PRV017",
+    "appointment_ref": "APT00099",
+    "claim_amount": 2891.98,
+    "claim_status": "Submitted",
+    "updated_at": "2026-10-09T22:57:00+00:00"
+  },
+  {
+    "claim_id": "CLM00011",
+    "patient": "PAT0002",
+    "provider": "PRV004",
+    "appointment_ref": "APT00201",
+    "claim_amount": -42.5,
+    "claim_status": "Submitted",
+    "updated_at": "2026-10-09T08:15:00+00:00"
+  },
+  {
+    "claim_id": "CLM00012",
+    "patient": "PAT0081",
+    "provider": "PRV004",
+    "appointment_ref": "APT00231",
+    "claim_amount": 3640.43,
+    "claim_status": "Submitted",
+    "updated_at": "2026-09-15T20:29:00+00:00"
+  },
+  {
+    "claim_id": "CLM00013",
+    "patient": "PAT0079",
+    "provider": "PRV005",
+    "appointment_ref": "APT00095",
+    "claim_amount": 3619.74,
+    "claim_status": "Submitted",
+    "updated_at": "2026-09-05T12:09:00+00:00"
+  },
+  {
+    "claim_id": "CLM00014",
+    "patient": "PAT0164",
+    "provider": "PRV012",
+    "appointment_ref": "APT00044",
+    "claim_amount": 2515.06,
+    "claim_status": "pending",
+    "updated_at": "2026-10-09T13:40:00+00:00"
+  },
+  {
+    "claim_id": "CLM00015",
+    "patient": "PAT0062",
+    "provider": "PRV015",
+    "appointment_ref": "APT00260",
+    "claim_amount": 1563.46,
+    "claim_status": "pending",
+    "updated_at": "2026-09-08T15:47:00+00:00"
+  },
+  {
+    "claim_id": "CLM00999",
+    "patient": "PAT0004",
+    "provider": "PRV003",
+    "appointment_ref": "APT00999",
+    "claim_amount": 275.0,
+    "claim_status": "approved",
+    "updated_at": "2026-10-11T11:00:00+00:00"
+  }
+]

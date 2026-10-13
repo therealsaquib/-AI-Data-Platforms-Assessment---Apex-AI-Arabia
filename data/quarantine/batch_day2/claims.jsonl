@@ -1,0 +1,1 @@
+{"amount": -42.5, "appointment_id": "APT00201", "claim_id": "CLM00011", "patient_id": "PAT0002", "provider_id": "PRV004", "reject_reason": "amount_out_of_range", "source_row_number": 12, "status": "submitted", "updated_at": "2026-10-09T08:15:00+00:00"}

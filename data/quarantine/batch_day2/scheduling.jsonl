@@ -1,0 +1,2 @@
+{"appointment_id": "APT00008", "appointment_time": "not-a-timestamp", "patient_id": "PAT0073", "provider_id": "PRV016", "reject_reason": "invalid_appointment_time", "source_row_number": 9, "status": "cancelled", "updated_at": "2026-10-03T13:56:00+00:00"}
+{"appointment_id": "APT00019", "appointment_time": "2026-09-23T02:06:00+00:00", "patient_id": "", "provider_id": "PRV013", "reject_reason": "missing_patient_id", "source_row_number": 20, "status": "scheduled", "updated_at": "2026-09-25T20:06:00+00:00"}

@@ -1,0 +1,75 @@
+seed: 4817
+paths:
+  raw: data/raw
+  staging: data/staging
+  curated: data/curated
+  quarantine: data/quarantine
+  logs: logs
+  database: data/curated/assessment.db
+thresholds:
+  minimum_rows:
+    scheduling: 300
+    claims: 200
+    support: 200
+  maximum_claim_amount: 50000
+  minimum_timestamp: "2020-01-01T00:00:00+00:00"
+  maximum_timestamp: "2035-12-31T23:59:59+00:00"
+statuses:
+  appointment:
+    scheduled: scheduled
+    confirmed: scheduled
+    arrived: arrived
+    completed: completed
+    cancelled: cancelled
+    canceled: cancelled
+    no-show: no_show
+    noshow: no_show
+    rescheduled: rescheduled
+  claim:
+    submitted: submitted
+    approved: approved
+    paid: approved
+    denied: denied
+    pending: pending
+  support:
+    open: open
+    closed: resolved
+    resolved: resolved
+    in progress: in_progress
+columns:
+  scheduling:
+    appointment_id: appointment_id
+    patient_id: patient_id
+    patient: patient_id
+    provider_id: provider_id
+    provider: provider_id
+    appointment_time: appointment_time
+    scheduled_at: appointment_time
+    status: status
+    appointment_status: status
+    updated_at: updated_at
+  claims:
+    claim_id: claim_id
+    patient_id: patient_id
+    patient: patient_id
+    provider_id: provider_id
+    provider: provider_id
+    appointment_ref: appointment_id
+    appointment_id: appointment_id
+    claim_amount: amount
+    amount: amount
+    claim_status: status
+    status: status
+    updated_at: updated_at
+  support:
+    ticket_id: interaction_id
+    interaction_id: interaction_id
+    patient_id: patient_id
+    patient: patient_id
+    provider_id: provider_id
+    provider: provider_id
+    opened_at: opened_at
+    closed_at: closed_at
+    resolution_status: status
+    status: status
+    updated_at: updated_at

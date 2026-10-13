@@ -1,0 +1,4 @@
+pandas>=2.2,<4
+PyYAML>=6.0,<7
+Faker>=30,<40
+pytest>=8,<10
