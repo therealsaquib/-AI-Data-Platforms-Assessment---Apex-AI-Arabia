@@ -14,4 +14,4 @@ I grepped project text, including raw/staging/quarantine, for credential markers
 
 No required deliverable is knowingly missing. The Makefile wrappers remain unverified because GNU Make was unavailable; setup, pipeline, tests, package module, and ZIP contents were checked separately.
 
-Do not claim personal verification of work you have not run or understood.
+
