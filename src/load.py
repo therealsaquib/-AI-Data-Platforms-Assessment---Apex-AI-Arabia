@@ -13,6 +13,11 @@ def connect(database: Path, schema_path: Path) -> sqlite3.Connection:
     connection = sqlite3.connect(database)
     connection.execute("PRAGMA foreign_keys = ON")
     connection.executescript(schema_path.read_text(encoding="utf-8"))
+    dq_columns = {
+        row[1] for row in connection.execute("PRAGMA table_info(dq_results)").fetchall()
+    }
+    if "run_id" not in dq_columns:
+        connection.execute("ALTER TABLE dq_results ADD COLUMN run_id TEXT NOT NULL DEFAULT ''")
     return connection
 
 

@@ -7,6 +7,7 @@ paths:
   logs: logs
   database: data/curated/assessment.db
 thresholds:
+  max_quarantine_rate: 0.2
   minimum_rows:
     scheduling: 300
     claims: 200
@@ -73,3 +74,25 @@ columns:
     resolution_status: status
     status: status
     updated_at: updated_at
+required_columns:
+  scheduling:
+    - appointment_id
+    - patient_id
+    - provider_id
+    - appointment_time
+    - status
+    - updated_at
+  claims:
+    - claim_id
+    - patient_id
+    - provider_id
+    - amount
+    - status
+    - updated_at
+  support:
+    - interaction_id
+    - patient_id
+    - provider_id
+    - opened_at
+    - status
+    - updated_at

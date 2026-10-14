@@ -33,7 +33,7 @@ ORDER BY observed_versions DESC;
 -- 6. Latest data-quality results.
 SELECT check_name, passed, details, checked_at
 FROM dq_results
-WHERE checked_at = (SELECT MAX(checked_at) FROM dq_results)
+WHERE run_id = (SELECT run_id FROM dq_results ORDER BY dq_id DESC LIMIT 1)
 ORDER BY check_name;
 
 -- 7. KPI lower than source: reconcile raw, accepted/staged, current curated, quarantined.
@@ -56,3 +56,9 @@ SELECT b.source, b.raw_count, b.staged_count, c.curated_count, b.quarantine_coun
 FROM batch_counts b
 JOIN curated c USING(source)
 ORDER BY b.source;
+
+-- 8. Current support queue by normalized status.
+SELECT status, COUNT(*) AS interaction_count
+FROM fact_support_interaction
+GROUP BY status
+ORDER BY interaction_count DESC;

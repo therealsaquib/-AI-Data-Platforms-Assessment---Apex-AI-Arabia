@@ -18,6 +18,11 @@ to an unrecognized name and exercises `SchemaDriftError`.
    normal pipeline. A genuinely changed schema needs an explicit contract
    review before adding an alias.
 
+An unrecognized status is different from a column drift: the pipeline warns
+with the observed value and quarantines the row. Confirm a new state with the
+source owner before adding a status alias; a high reject rate exceeds the
+configured batch threshold.
+
 ## 2. Curated data-quality violation
 
 Run `python -m src.pipeline --fail-demo`. The demo injects an unaccepted

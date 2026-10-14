@@ -39,27 +39,29 @@ def canonicalize_headers(
     records: list[dict[str, Any]], source: str, config: dict[str, Any]
 ) -> list[dict[str, Any]]:
     aliases = config["columns"][source]
-    if not records:
-        return []
-    observed = set(records[0])
+    observed = {column for row in records for column in row}
     unknown = sorted(column for column in observed if normalize_header(column) not in aliases)
     if unknown:
         raise SchemaDriftError(
             f"{source}: unmapped column(s) {unknown}; add each source column to "
             f"config.yaml under columns.{source} with its canonical name."
         )
-    translated = {
-        column: aliases[normalize_header(column)] for column in observed
-    }
     canonical: list[dict[str, Any]] = []
     for row in records:
         result: dict[str, Any] = {}
         for original, value in row.items():
-            target = translated[original]
+            target = aliases[normalize_header(original)]
             if target in result and result[target] not in (None, "") and value not in (None, ""):
                 raise SchemaDriftError(
                     f"{source}: multiple input columns map to {target!r}; update columns.{source}."
                 )
             result[target] = value
         canonical.append(result)
+    present = {column for row in canonical for column in row}
+    missing = sorted(set(config["required_columns"][source]) - present)
+    if missing:
+        raise SchemaDriftError(
+            f"{source}: missing required canonical column(s) {missing}; check the delivered "
+            f"schema and config.yaml under required_columns.{source}."
+        )
     return canonical

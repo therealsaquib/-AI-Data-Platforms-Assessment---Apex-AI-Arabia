@@ -10,6 +10,24 @@ star-style current-state facts, history, batch ledger, and DQ results.
 Requires Python 3.11 or newer.
 
 ```powershell
+make setup
+.\.venv\Scripts\Activate.ps1
+python -m src.pipeline
+python -m pytest
+```
+
+Equivalent setup/run commands on macOS or Linux:
+
+```bash
+make setup
+source .venv/bin/activate
+python -m src.pipeline
+python -m pytest
+```
+
+PowerShell setup without GNU Make:
+
+```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install -r requirements.txt
@@ -17,11 +35,28 @@ python -m src.pipeline
 python -m pytest
 ```
 
-With GNU Make installed, `make run` runs the same pipeline and `make test`
-runs pytest. Pipeline generation is deterministic and regenerates the two raw
-batches before ingestion. The run prints curated counts and confirms whether
-the second delivery of day two left them unchanged. SQLite database:
-`data/curated/assessment.db`.
+`python -m src.pipeline` runs the day1 → day2 → day2-repeat demo. It creates
+missing synthetic files but never replaces existing files. Generate missing
+demo inputs explicitly with `python -m src.generate_data`. To ingest one
+delivered folder against the configured existing database, use:
+
+```powershell
+python -m src.pipeline --batch-dir data/raw/batch_day2 --batch-id batch_day2
+```
+
+Use `python -m src.generate_data --force` to replace existing demo fixtures
+with the current fixed-seed generator output; reset the local database before
+processing these changed files.
+
+The folder must contain `scheduling.csv`, `claims.json`, and `support.csv`.
+With GNU Make installed, `make demo` runs the day1/day2/repeat demo, `make
+generate` creates missing demo files, and `make test` runs pytest. SQLite
+database: `data/curated/assessment.db`.
+
+Run `make package` to create
+`Mohd_Saqib_Shaikh_JuniorDataEngineer_48H_Assessment.zip`; it includes the
+source fixtures and excludes local databases, logs, virtual environments, and
+Python cache directories.
 
 Controlled demonstrations:
 
@@ -93,16 +128,19 @@ and quarantine mean source row totals are expected to differ.
 
 ## SQL and quality
 
-`sql/analysis.sql` has seven examples. The final query compares raw-file row
-counts from the processed-batch ledger, accepted row history, and current-state
-facts; inspect quarantine JSONL for explicit rejected-row counts. DQ results
-persist per run in `dq_results` and logs. Checks cover uniqueness, non-null
+`sql/analysis.sql` has eight examples. The reconciliation query compares raw, staged,
+quarantined, and current-state row counts from the batch ledger; accepted
+history can be queried separately to explain versioned upserts. DQ results
+persist by run ID in `dq_results` and logs. Checks cover uniqueness, non-null
 business keys, accepted statuses, patient/provider/date integrity, timestamps,
 amount bounds, history-based duplicate/version audit, and source-specific
-minimum current-state counts, repeated-key detection, and completeness of the
-accepted-row history. For a successfully mapped file, every row either stages
-or has a recorded quarantine reason; accepted duplicate versions remain in
-audit history.
+minimum current-state counts, controlled duplicate detection, and completeness
+of accepted-row history; resolved support tickets must have a close time.
+Files with unknown/missing required columns fail
+before transform; unrecognized statuses are warned and quarantined. A
+configurable quarantine-rate threshold fails the batch clearly. For successfully
+mapped files, every row either stages or has a recorded quarantine reason;
+accepted duplicate versions remain in audit history.
 
 ## Limitations and production roadmap (not implemented)
 
@@ -139,6 +177,5 @@ encryption. Those roadmap elements are explicitly outside this implementation.
 
 ## AI/tool disclosure
 
-Fill in [docs/ai_disclosure.md](docs/ai_disclosure.md) honestly before sharing
-the assessment. It intentionally contains placeholders rather than claiming
-verification you have not personally performed.
+See [docs/ai_disclosure.md](docs/ai_disclosure.md) for the tool and verification
+disclosure.

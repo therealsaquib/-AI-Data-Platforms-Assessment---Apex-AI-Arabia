@@ -1,5 +1,6 @@
 """Create reproducible, entirely synthetic source data with deliberate defects."""
 
+import argparse
 import csv
 import json
 import random
@@ -68,19 +69,24 @@ def _day_one(seed: int) -> tuple[dict[str, list[dict[str, Any]]], dict[str, list
     for i in range(300):
         opened = base + timedelta(minutes=rng.randint(0, 60 * 24 * 45))
         closed = opened + timedelta(hours=rng.randint(1, 96))
+        status = rng.choice(["Open", "Closed", "resolved", "In Progress"])
         support.append({
             "ticket_id": f"TKT{i + 1:05d}",
             "patient_id": rng.choice(patients),
             "provider_id": rng.choice(providers),
             "opened_at": _iso(opened),
-            "closed_at": _iso(closed),
-            "resolution_status": rng.choice(["Open", "Closed", "resolved", "In Progress"]),
+            "closed_at": "" if status.lower() in {"open", "in progress"} else _iso(closed),
+            "resolution_status": status,
             "updated_at": _iso(closed),
         })
     support.append(dict(support[3]))
     support[9]["opened_at"] = "bad timestamp"
     support[19]["patient_id"] = ""
-    support[23]["closed_at"] = ""
+    resolved_index = next(
+        i for i, row in enumerate(support)
+        if row["resolution_status"].lower() in {"closed", "resolved"}
+    )
+    support[resolved_index]["closed_at"] = ""
     support[27]["provider_id"] = "PRV998"
     support[33]["opened_at"] = base.strftime("%m/%d/%Y %H:%M")
     return {
@@ -98,18 +104,21 @@ def _write_csv(path: Path, rows: list[dict[str, Any]]) -> None:
         writer.writerows(rows)
 
 
-def generate_data(config_path: Path, output_root: Path | None = None) -> Path:
+def generate_data(config_path: Path, output_root: Path | None = None, force: bool = False) -> Path:
     config = load_config(config_path)
     root = output_root or config_path.parent
     batches = root / config["paths"]["raw"]
     day1, entities = _day_one(int(config["seed"]))
     first = batches / "batch_day1"
     second = batches / "batch_day2"
-    _write_csv(first / "scheduling.csv", day1["scheduling"])
-    (first / "claims.json").write_text(
-        json.dumps(day1["claims"], indent=2), encoding="utf-8"
-    )
-    _write_csv(first / "support.csv", day1["support"])
+    first.mkdir(parents=True, exist_ok=True)
+    second.mkdir(parents=True, exist_ok=True)
+    if force or not (first / "scheduling.csv").exists():
+        _write_csv(first / "scheduling.csv", day1["scheduling"])
+    if force or not (first / "claims.json").exists():
+        (first / "claims.json").write_text(json.dumps(day1["claims"], indent=2), encoding="utf-8")
+    if force or not (first / "support.csv").exists():
+        _write_csv(first / "support.csv", day1["support"])
 
     # Day two intentionally repeats delivered rows but also carries new versions.
     schedule2 = [dict(row) for row in day1["scheduling"][:24]]
@@ -123,7 +132,8 @@ def generate_data(config_path: Path, output_root: Path | None = None) -> Path:
     late["updated_at"] = "2026-10-11T10:00:00+00:00"
     late["scheduled_at"] = late.pop("appointment_time")
     schedule2.append(late)
-    _write_csv(second / "scheduling.csv", schedule2)
+    if force or not (second / "scheduling.csv").exists():
+        _write_csv(second / "scheduling.csv", schedule2)
 
     claims2 = [dict(row) for row in day1["claims"][:15]]
     claims2.append({
@@ -132,14 +142,20 @@ def generate_data(config_path: Path, output_root: Path | None = None) -> Path:
         "claim_amount": 275.00, "claim_status": "approved",
         "updated_at": "2026-10-11T11:00:00+00:00",
     })
-    (second / "claims.json").write_text(json.dumps(claims2, indent=2), encoding="utf-8")
+    if force or not (second / "claims.json").exists():
+        (second / "claims.json").write_text(json.dumps(claims2, indent=2), encoding="utf-8")
     support2 = [dict(row) for row in day1["support"][:12]]
-    _write_csv(second / "support.csv", support2)
-    (root / "data" / "reference.json").write_text(
-        json.dumps(entities, indent=2), encoding="utf-8"
-    )
+    if force or not (second / "support.csv").exists():
+        _write_csv(second / "support.csv", support2)
+    reference_path = root / "data" / "reference.json"
+    if force or not reference_path.exists():
+        reference_path.parent.mkdir(parents=True, exist_ok=True)
+        reference_path.write_text(json.dumps(entities, indent=2), encoding="utf-8")
     return batches
 
 
 if __name__ == "__main__":
-    print(generate_data(Path(__file__).resolve().parents[1] / "config.yaml"))
+    parser = argparse.ArgumentParser(description="Generate synthetic demo batches.")
+    parser.add_argument("--force", action="store_true", help="replace existing synthetic demo fixtures")
+    args = parser.parse_args()
+    print(generate_data(Path(__file__).resolve().parents[1] / "config.yaml", force=args.force))

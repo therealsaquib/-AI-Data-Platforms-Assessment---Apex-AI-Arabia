@@ -36,7 +36,7 @@ def transform_rows(
     time_fields = {
         "scheduling": ["appointment_time", "updated_at"],
         "claims": ["updated_at"],
-        "support": ["opened_at", "closed_at", "updated_at"],
+        "support": ["opened_at", "updated_at"],
     }[source]
     lower = pd.Timestamp(config["thresholds"]["minimum_timestamp"])
     upper = pd.Timestamp(config["thresholds"]["maximum_timestamp"])
@@ -62,6 +62,7 @@ def transform_rows(
                 if timestamp < lower or timestamp > upper:
                     reasons.append(f"out_of_range_{field}")
                 row[field] = parsed
+        original_status = row.get("status")
         row["status"] = normalize_status(
             row.get("status"), config["statuses"][{
                 "scheduling": "appointment",
@@ -71,6 +72,21 @@ def transform_rows(
         )
         if row["status"] is None:
             reasons.append("unrecognized_status")
+            row["unrecognized_status_value"] = original_status
+        if source == "support":
+            closed_value = row.get("closed_at")
+            if closed_value is None or not str(closed_value).strip():
+                if row["status"] == "resolved":
+                    reasons.append("invalid_closed_at")
+            else:
+                parsed_closed = parse_timestamp(closed_value)
+                if parsed_closed is None:
+                    reasons.append("invalid_closed_at")
+                else:
+                    closed_timestamp = pd.Timestamp(parsed_closed)
+                    if closed_timestamp < lower or closed_timestamp > upper:
+                        reasons.append("out_of_range_closed_at")
+                    row["closed_at"] = parsed_closed
         if source == "claims":
             try:
                 row["amount"] = float(row.get("amount"))

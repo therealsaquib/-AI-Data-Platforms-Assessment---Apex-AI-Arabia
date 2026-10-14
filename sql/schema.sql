@@ -67,6 +67,7 @@ CREATE TABLE IF NOT EXISTS processed_batches (
 );
 CREATE TABLE IF NOT EXISTS dq_results (
     dq_id INTEGER PRIMARY KEY AUTOINCREMENT,
+    run_id TEXT NOT NULL DEFAULT '',
     check_name TEXT NOT NULL,
     passed INTEGER NOT NULL,
     details TEXT NOT NULL,

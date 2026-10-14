@@ -7,10 +7,10 @@
 | `dim_date` | One UTC calendar day / `date_key` | Year, month, day, weekday |
 | `fact_appointment` | Latest appointment / `appointment_id` | Patient/provider keys, UTC `appointment_at`, canonical status, source `updated_at`, record version |
 | `fact_claim` | Latest claim / `claim_id` | Patient/provider keys, optional appointment link, nonnegative `amount`, canonical status and version |
-| `fact_support_interaction` | Latest ticket / `interaction_id` | Patient/provider keys, open/close UTC timestamps, canonical status and version |
+| `fact_support_interaction` | Latest ticket / `interaction_id` | Patient/provider keys, opened UTC timestamp, optional closed UTC timestamp, canonical status and version |
 | `fact_record_history` | One accepted source row / `history_id` | Source, business key, record version, update time, batch, source line, JSON payload |
-| `processed_batches` | One delivered source file / `batch_id` | SHA-256, raw row count, processing status and time |
-| `dq_results` | One check execution / `dq_id` | Check name, pass/fail, details and timestamp |
+| `processed_batches` | One delivered source file / `batch_id` | SHA-256, raw/staged/rejected row counts, processing status and time |
+| `dq_results` | One check execution / `dq_id` | Run ID, check name, pass/fail, details and timestamp |
 
 Rejected rows are JSON Lines in `data/quarantine/<batch>/<source>.jsonl`.
 Every row carries a semicolon-separated `reject_reason`; one row can have

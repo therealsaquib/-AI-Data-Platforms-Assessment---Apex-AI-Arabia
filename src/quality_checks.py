@@ -7,7 +7,9 @@ class DQFailureError(RuntimeError):
     """Raised when a hard data-quality check fails."""
 
 
-def run_quality_checks(connection: Any, logger: Any, config: dict[str, Any]) -> list[dict[str, Any]]:
+def run_quality_checks(
+    connection: Any, logger: Any, config: dict[str, Any], run_id: str
+) -> list[dict[str, Any]]:
     checks = [
         ("appointments_unique", "SELECT COUNT(*) = COUNT(DISTINCT appointment_id) FROM fact_appointment", "business-key uniqueness"),
         ("claims_unique", "SELECT COUNT(*) = COUNT(DISTINCT claim_id) FROM fact_claim", "business-key uniqueness"),
@@ -16,8 +18,37 @@ def run_quality_checks(connection: Any, logger: Any, config: dict[str, Any]) -> 
         ("patient_references", "SELECT COUNT(*) = 0 FROM (SELECT patient_id FROM fact_appointment UNION ALL SELECT patient_id FROM fact_claim UNION ALL SELECT patient_id FROM fact_support_interaction) f LEFT JOIN dim_patient d USING (patient_id) WHERE d.patient_id IS NULL", "patient referential integrity"),
         ("provider_references", "SELECT COUNT(*) = 0 FROM (SELECT provider_id FROM fact_appointment UNION ALL SELECT provider_id FROM fact_claim UNION ALL SELECT provider_id FROM fact_support_interaction) f LEFT JOIN dim_provider d USING (provider_id) WHERE d.provider_id IS NULL", "provider referential integrity"),
         ("date_references", "SELECT COUNT(*) = 0 FROM fact_appointment f LEFT JOIN dim_date d ON f.event_date = d.date_key WHERE d.date_key IS NULL UNION ALL SELECT COUNT(*) = 0 FROM fact_support_interaction f LEFT JOIN dim_date d ON f.opened_date = d.date_key WHERE d.date_key IS NULL", "date dimension referential integrity"),
-        ("duplicate_detection", "SELECT COUNT(*) > 0 FROM (SELECT source, business_key FROM fact_record_history GROUP BY source, business_key HAVING COUNT(*) > 1)", "repeated business keys are detected in accepted history"),
+        (
+            "duplicate_detection",
+            """
+            WITH current_counts AS (
+                SELECT 'scheduling' AS source, appointment_id AS business_key, COUNT(*) AS row_count
+                FROM fact_appointment GROUP BY appointment_id
+                UNION ALL
+                SELECT 'claims', claim_id, COUNT(*) FROM fact_claim GROUP BY claim_id
+                UNION ALL
+                SELECT 'support', interaction_id, COUNT(*)
+                FROM fact_support_interaction GROUP BY interaction_id
+            ),
+            current_duplicates AS (
+                SELECT source, business_key FROM current_counts WHERE row_count > 1
+            ),
+            repeated_history AS (
+                SELECT source, business_key FROM fact_record_history
+                GROUP BY source, business_key HAVING COUNT(*) > 1
+            )
+            SELECT (
+                SELECT COUNT(*) FROM current_duplicates
+            ) + (
+                SELECT COUNT(*) FROM repeated_history h
+                LEFT JOIN current_counts c USING (source, business_key)
+                WHERE COALESCE(c.row_count, 0) != 1
+            ) = 0
+            """,
+            "no current fact key is duplicated; each repeated history key has exactly one current row",
+        ),
         ("history_completeness", "SELECT (SELECT COUNT(*) FROM fact_record_history) = COALESCE((SELECT SUM(staged_count) FROM processed_batches WHERE status='success'), 0)", "every staged accepted row has a corresponding history record"),
+        ("resolved_support_has_closed_at", "SELECT COUNT(*) = 0 FROM fact_support_interaction WHERE status='resolved' AND closed_at IS NULL", "resolved support tickets require a close timestamp"),
     ]
     expected_text_columns = {
         "fact_appointment": {"appointment_id", "patient_id", "provider_id", "appointment_at", "status"},
@@ -103,9 +134,9 @@ def run_quality_checks(connection: Any, logger: Any, config: dict[str, Any]) -> 
     })
     for result in results:
         connection.execute(
-            "INSERT INTO dq_results (check_name, passed, details, checked_at) "
-            "VALUES (?, ?, ?, CURRENT_TIMESTAMP)",
-            (result["check_name"], int(result["passed"]), result["details"]),
+            "INSERT INTO dq_results (run_id, check_name, passed, details, checked_at) "
+            "VALUES (?, ?, ?, ?, CURRENT_TIMESTAMP)",
+            (run_id, result["check_name"], int(result["passed"]), result["details"]),
         )
         logger.info(
             "stage=dq check=%s status=%s details=%s",
